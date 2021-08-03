@@ -2,38 +2,41 @@
 // Created by Ningyuan Gao on 2021-07-20.
 //
 
-#ifndef GROUP_STRING_H
-#define GROUP_STRING_H
+#ifndef GROUP_GSTRING_H
+#define GROUP_GSTRING_H
 
 #include <cstring>
-#include "string.h"
+#include <iostream>
 
 class String {
 private:
     char *str;
     int len;
     static int num;
+    static const int CINLIM = 80;
 
 private:
-    char* resize(char*& old, int length, int resize_to);
+    static char* resize(char*& old, int length, int resize_to);
 
 public:
     String(const char *s);
     String();
     String(const String &);
     ~String();
-    int length() const { return len };
+    int length() const { return len; };
     String & operator=(const String &);
     String & operator=(const char *);
     char & operator[](int i);
+    friend std::ostream & operator<<(std::ostream & os, const String & st);
+    friend std::istream & operator>>(std::istream & is, String & st);
 
 public:
     void append(const String &);
     void append(const char * s);
     void pop_back();
-    void pop_back(const int n);
+    void pop_back(int n);
     void pop_front();
-    void pop_front(const int n);
+    void pop_front(int n);
 };
 
 String::String(const char *s) {
@@ -42,6 +45,8 @@ String::String(const char *s) {
     strcpy(str, s);
     num ++;
 }
+
+int String::num = 0;
 
 String::String() {
     len = 4;
@@ -58,14 +63,12 @@ String::~String() {
 void String::append(const char *s) {
     strcat(this->str, s);
     this->len = strlen(this->str);
-    return;
 }
 
 void String::pop_back() {
     if (this->len>0) {
         this->str = resize(this->str, this->len, this->len-1);
     }
-    return;
 }
 
 void String::pop_back(const int n) {
@@ -83,7 +86,6 @@ void String::pop_front() {
     delete [] this->str;
     this->str = new_ptr;
     --this->len;
-    return;
 }
 
 void String::pop_front(const int n) {
@@ -96,7 +98,6 @@ void String::pop_front(const int n) {
     delete [] this->str;
     this->str = new_ptr;
     --this->len;
-    return;
 }
 
 String & String::operator=(const String & st) {
@@ -132,4 +133,33 @@ char* String::resize(char*& old, int length, int resize_to) {
     return new_ptr;
 }
 
-#endif //GROUP_STRING_H
+std::ostream & operator<<(std::ostream & os, const String & st) {
+    os << st.str;
+    return os;
+}
+
+std::istream & operator>>(std::istream & is, String & st) {
+    char temp[String::CINLIM];
+    is.get(temp, String::CINLIM);
+    if (is) {
+        st = temp;
+    }
+    while (is && is.get() != '\n') {
+        continue;
+    }
+    return is;
+}
+
+String::String(const String & st) {
+    num++;
+    len = st.len;
+    str = new char [len + 1];
+    std::strcpy(str, st.str);
+}
+
+void String::append(const String & st) {
+    strcat(this->str, st.str);
+    this->len = strlen(this->str);
+}
+
+#endif //GROUP_GSTRING_H
