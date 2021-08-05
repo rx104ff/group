@@ -21,16 +21,18 @@ public:
     int find(const T & item);
     bool remove(const T & item);
     bool add(const T & item);
-    Set<T> & set_union(Set<T> & s);
-    Set<T> & set_intersection(Set<T> & s);
+    Set<T> & set_union(const Set<T> & s);
+    Set<T> & set_intersection(const Set<T> & s);
     void print();
 
 public:
-    T & operator[](int i) { return buffer[i]; };
+    T & operator[](int i);
     Set<T> & operator=(const Set<T> & set);
-    Set<T> & operator+(Set<T> & set);
-    Set<T> & operator+(T & item);
-    Set<T> & operator-(T & item);
+    Set<T> & operator+(const Set<T> & set);
+    Set<T> & operator+(const T  & item);
+    Set<T> & operator-(const Set<T> & set);
+    Set<T> & operator-(const T & item);
+    Set<T> & operator*(const Set<T> & set);
 };
 
 template <class T>
@@ -132,7 +134,7 @@ bool Set<T>::add(const T & item) {
 }
 
 template <class T>
-Set<T> & Set<T>::set_union(Set<T> & s) {
+Set<T> & Set<T>::set_union(const Set<T> & s) {
     int total = s.size + size;
     T * tmp_buffer = new T [total];
     for (int i=0; i<s.size; i++) {
@@ -153,15 +155,16 @@ Set<T> & Set<T>::set_union(Set<T> & s) {
 }
 
 template <class T>
-Set<T> & Set<T>::set_intersection(Set<T> & s) {
+Set<T> & Set<T>::set_intersection(const Set<T> & s) {
     auto new_set = Set<T>();
+    auto s_copy =  Set<T>(s);
     for (int i=0; i<s.size; i++) {
         if (this->remove(s.buffer[i])) {
             new_set.add(s.buffer[i]);
         }
     }
     for (int i=0; i<size; i++) {
-        if (s.remove(buffer[i])) {
+        if (s_copy.remove(buffer[i])) {
             new_set.add(buffer[i]);
         }
     }
@@ -174,14 +177,17 @@ Set<T> & Set<T>::set_intersection(Set<T> & s) {
 }
 
 template <class T>
-Set<T> & Set<T>::operator+(Set<T> &set) {
-    return Set<T>::set_union(set);
+Set<T> & Set<T>::operator+(const Set<T> & set) {
+    auto new_set = new Set<T>(set);
+    new_set.set_union(set);
+    return *new_set;
 }
 
 template <class T>
-Set<T> & Set<T>::operator+(T &item) {
-    this->add(item);
-    return *this;
+Set<T> & Set<T>::operator+(const T & item) {
+    auto new_set = new Set<T>(*this);
+    new_set->add(item);
+    return *new_set;
 }
 
 template <class T>
@@ -197,9 +203,31 @@ Set<T> & Set<T>::operator=(const Set<T> & set) {
 }
 
 template <class T>
-Set<T> & Set<T>::operator-(T & item) {
-    this->remove(item);
-    return *this;
+Set<T> & Set<T>::operator-(const T & item) {
+    auto new_set = new Set<T>(*this);
+    new_set->remove(item);
+    return *new_set;
+}
+
+template <class T>
+Set<T> & Set<T>::operator-(const Set<T> & set) {
+    auto new_set = new Set<T>(*this);
+    for (int i=0; i<set.size; i++) {
+        new_set->remove(set.buffer[i]);
+    }
+    return *new_set;
+}
+
+template <class T>
+T & Set<T>::operator[](int i) {
+    return buffer[i];
+}
+
+template <class T>
+Set<T> & Set<T>::operator*(const Set<T> & set) {
+    auto new_set = new Set<T>(*this);
+    new_set->set_intersection(set);
+    return *new_set;
 }
 
 
