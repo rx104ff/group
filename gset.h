@@ -24,6 +24,7 @@ public:
     Set<T> & set_union(const Set<T> & s);
     Set<T> & set_intersection(const Set<T> & s);
     void print();
+    void sort();
 
 public:
     T & operator[](int i);
@@ -228,6 +229,22 @@ Set<T> & Set<T>::operator*(const Set<T> & set) {
     auto new_set = new Set<T>(*this);
     new_set->set_intersection(set);
     return *new_set;
+}
+
+template <class T>
+void Set<T>::sort() {
+    for (int i=1; i<size-1; i++){
+        if (buffer[i] < buffer[i-1]) {
+            for (int j=0; j<size; j++) {
+                if (buffer[j] >= buffer[i] && buffer[j] <= buffer[i+1]) {
+                    for (int k=j; k<=i; k++) {
+                        std::swap(buffer[i], buffer[j]);
+                    }
+                    return this->sort();
+                }
+            }
+        }
+    }
 }
 
 
